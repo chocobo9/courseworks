@@ -36,9 +36,6 @@ void update_date_time(disklist *di,char *directory_entry_startPos){
     
 	//the minutes are stored in the middle 6 bits
 	di->minutes = (di->time & 0x7E0) >> 5;
-	
-
-	
 }
 
 
@@ -83,10 +80,22 @@ char *get_file_name(char *file_name,char *p,char f_type){
     
 }
 
+void get_file_from_subdir(char *dir_name, char *p){
+    printf("dir name: %s\n", dir_name);
+    printf("logical:%d\n",(p[26]+(p[27]<<8)));
+    printf("physics:%d\n",(p[26]+(p[27]<<8)+31));
+    //if((p[26]+(p[27]<<8)) == 0) continue;
+    while(p[0]!=0x00){
+
+        p+=32;
+    }
+}
+
 void print_disk_list(char *p){
     disklist *di = (disklist *)malloc(sizeof(disklist));
     char *file_name = (char *)malloc(sizeof(char));
     char *dir_name = (char *)malloc(sizeof(char));
+    char *info_subdir = (char *)malloc(sizeof(char));
     int count =0;
     while(p[0]!=0x00){
         di->type_of_file = ((p[11]&0x10)==0x10) ? 'D':'F';
@@ -119,10 +128,14 @@ void print_disk_list(char *p){
             }
             //find logical cluser num, corresponding physical cluser = num+31;
             //read every 32 bytes till 512 bytes 
-            printf("dir name: %s\n", dir_name);
+            get_file_from_subdir(dir_name,p);
+            
         }
         p+=32;
     }
+    //after root finished,start print saved sub information.
+    printf("Sub directory:\n");
+    printf("==================\n");
     free(file_name);
     free(dir_name);
     free(di);
