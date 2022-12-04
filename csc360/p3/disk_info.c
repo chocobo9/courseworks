@@ -11,12 +11,11 @@
 
 typedef struct diskinfo{
     char os_name[8];
-    char lable[8];
-    char byte_per_sec[2];
-    char sec_count[2];
-    char free_size[2];
-    char num_files[1];
-    char num_FAT[1];
+    char lable[12];
+    int byte_per_sec;
+    int sec_count;
+    int free_size;
+    int num_files;
 }diskinfo;
 
 void get_os_name(char *os_name, char *p){
@@ -32,11 +31,12 @@ void get_label(char *label,char *p){
             for(int j = 0; j<8; j++){
                 label[j] = p[j];
             }
-            
+            break;
         }
         p+= 32;
     }
 }
+
 int get_total_sector(char *p){
     return p[19]+(p[20]<<8);
 }//copy
@@ -44,26 +44,32 @@ int get_sector_fat(char *p){
     return p[22]+(p[23]<<8);
 }//copy
 
+/**
+ * @brief Get the FAT value.
+ * 
+ * @param n cluster number.
+ * @param p image pointer
+ * @return FAT value.
+ */
 int get_fat_val(int n, char *p){
 
-    int fourbit, eightbit;
+    int low_bits, high_bits;
+
     if(n % 2 == 0){
-        fourbit = p[(n*3)/2+1]&0x0f;
-        eightbit = p[(n*3)/2]&0xff;
-        return (fourbit<<8)+eightbit;
+        low_bits = p[512+(n*3)/2+1]&0x0f;
+        high_bits = p[512+(n*3)/2]&0xff;
+        return (low_bits<<8)+high_bits;
     }else{
-        fourbit = p[(n*3)/2]&0xf0;
-        eightbit = p[(n*3)/2+1]&0xff;
-        return (fourbit>>4)+(eightbit<<4);
+        high_bits = p[512 + (n*3)/2]&0xf0;
+        low_bits = p[512 + (n*3)/2+1]&0xff;
+        return (high_bits>>4)+(low_bits<<4);
     } 
-}//copy
+}
 
 int get_free_size(char *p){
     int unused = 0;
-    int size = get_total_sector(p);
-    p+=512;
 
-    for(int i = 2; i<st_size/512; i++){
+    for(int i = 2; i<(p[19]+(p[20]<<8))-31; i++){
         if(get_fat_val(i,p) == 0x00){
             unused++;
         }
@@ -74,9 +80,9 @@ int get_free_size(char *p){
 
 int get_file_num(char *p){
     p+=512*19;
-    int count = 0;
-    for(int i = 0; i < 14*16 ; i++,p+=32){
-        if(p[11]==0x0f){
+    int n = 0;
+    for(int i = 0; i < 224 ; i++,p+=32){
+        if(p[11]==0x0f || p[11] == 0x08){
             continue;
         }
         else if(((p[0]&0xff) == 0xE5) || ((p[0]&0xff) == 0x00)){
@@ -85,13 +91,10 @@ int get_file_num(char *p){
         else if((p[26]+(p[27]<<8))<2){
             continue;
         }
-        else if(p[11] == 0x08){
-            continue;
-        }
-        count++;
+        n++;
     }
-    return count;
-}//copy
+    return n;
+}
 
 int main(int argc, char *argv[]){
     int fd = open(argv[1], O_RDWR);
@@ -112,24 +115,22 @@ int main(int argc, char *argv[]){
 		exit(1);
 	}
     
-    *di->byte_per_sec = p[11]+(p[12]<<8);
+    di->byte_per_sec = p[11]+(p[12]<<8);
     get_os_name(di->os_name,p);
     printf("OS Name: %s\n",di->os_name);
-    get_label(di->lable,p);
-    //printf("total:%d\n",(p[11]+(p[12]<<8))*(p[19]+(p[20]<<8)));
     
+    get_label(di->lable,p);
     printf("Label of the disk: %s\n",di->lable);
-    //get_free_size(buffer.st_size,di->byte_per_sec,di->free_size,p);
-    int freesize = get_free_size(p);
-    int filenum = get_file_num(p);
-    int fatNum = p[16];
+
+    di->free_size = get_free_size(p);
+    di->num_files = get_file_num(p);
     int sectorFat = get_sector_fat(p);
     printf("Total size of the disk: %ld bytes\n",buffer.st_size);
-    printf("Free size of the disk:%d bytes\n\n",freesize);
+    printf("Free size of the disk:%d bytes\n\n",di->free_size);
     printf("==================\n");
-    printf("The number of files in the image: %d \n\n",filenum);
+    printf("The number of files in the image: %d \n\n",di->num_files);
     printf("==================\n");
-    printf("Number of fat copies:%d\n",fatNum);
+    printf("Number of fat copies:%d\n",p[16]);
     printf("Sectors per Fat:%d\n", sectorFat);
     
     munmap(p, buffer.st_size); 
