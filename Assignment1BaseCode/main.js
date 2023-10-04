@@ -232,6 +232,7 @@ function createGround(){
 	}
 	gPop();
 }
+
 function createRock(){
 	setColor(vec4(0.3, 0.3, 0.3, 1.0));
 	gTranslate(0.3,-3.4,0);
@@ -244,10 +245,72 @@ function createRock(){
 	}
 	gPop();
 }
-function createSeaweeds(){
-	
-}
 
+function drawSeaweed() {
+	for (let i = 0; i < 10; i++) {
+	  drawSphere();
+	  gTranslate(0, 2, 0);
+	}
+  }
+function createSeaweeds() {
+	setColor(vec4(0, 0.5, 0, 1.0));
+	gScale(0.2, 0.4, 0.2);
+  
+	// Define an array of positions for seaweed
+	const seaweedPositions = [
+	  [0, 3.4, 0],
+	  [-4.5, 2, 0],
+	  [4.7, 1.8, 0]
+	];
+  
+	// Loop through each position and create seaweed
+	for (const position of seaweedPositions) {
+	  gPush(); 
+	  gTranslate(position[0], position[1], position[2]);
+	  drawSeaweed();
+	  gPop(); 
+	}
+}
+  
+function createFish(){
+	gPush();
+	{
+		setColor(vec4(0.5, 0.5, 0.5, 1.0));
+		gTranslate(0, 2, 0);
+		drawCone();
+		createFishEyes();
+		createFishBody();
+		createFishTails();
+	}
+	gPop();
+}
+function drawFishEye(){
+	gPush();
+	{
+		setColor(vec4(1, 1, 1, 1.0));
+		gScale(0.3, 0.3, 0.3);
+		drawSphere();
+		gTranslate(0, 0, 0.75);
+      	setColor(vec4(0, 0, 0, 1.0));
+      	gScale(0.7, 0.7, 0.7);
+      	drawSphere();
+	}
+	gPop();
+}
+function createFishEyes(){
+	gPush();
+	gTranslate(0.4, 0.5, 0.1);
+	drawFishEye();
+	gTranslate(-0.9, 0, 0);
+	drawFishEye();
+	gPop();
+}
+function createFishBody(){
+
+}
+function createFishTails(){
+
+}
 function render(timestamp) {
     
     gl.clear( gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
@@ -281,20 +344,28 @@ function render(timestamp) {
 		dt = (timestamp - prevTime) / 1000.0;
 		prevTime = timestamp;
 	}
-	createGround();
-	createRock();
-	// // Sphere example
-	// gPush();
-	// 	// Put the sphere where it should be!
-	// 	gTranslate(spherePosition[0],spherePosition[1],spherePosition[2]);
-	// 	gPush();
-	// 	{
-	// 		// Draw the sphere!
-	// 		setColor(vec4(1.0,0.0,0.0,1.0));
-	// 		drawSphere();
-	// 	}
-	// 	gPop();
-	// gPop();
+	//createGround();
+	gPush();{
+		createRock();
+		createSeaweeds();
+		createFishEyes();
+	}
+	gPop();
+	
+	
+	// Sphere example
+	gPush();
+		// Put the sphere where it should be!
+		gTranslate(spherePosition[0],spherePosition[1],spherePosition[2]);
+		gPush();
+		{
+			// Draw the sphere!
+			setColor(vec4(1.0,0.0,0.0,1.0));
+			drawSphere();
+
+		}
+		gPop();
+	gPop();
     
 	// // Cube example
 	// gPush();
@@ -313,31 +384,31 @@ function render(timestamp) {
 	// 	gPop();
 	// gPop();
     
-	// // Cylinder example
-	// gPush();
-	// 	gTranslate(cylinderPosition[0],cylinderPosition[1],cylinderPosition[2]);
-	// 	gPush();
-	// 	{
-	// 		setColor(vec4(0.0,0.0,1.0,1.0));
-	// 		cylinderRotation[1] = cylinderRotation[1] + 60*dt;
-	// 		gRotate(cylinderRotation[1],0,1,0);
-	// 		drawCylinder();
-	// 	}
-	// 	gPop();
-	// gPop();	
+	// Cylinder example
+	gPush();
+		gTranslate(cylinderPosition[0],cylinderPosition[1],cylinderPosition[2]);
+		gPush();
+		{
+			setColor(vec4(0.0,0.0,1.0,1.0));
+			cylinderRotation[1] = cylinderRotation[1] + 60*dt;
+			gRotate(cylinderRotation[1],0,1,0);
+			drawCylinder();
+		}
+		gPop();
+	gPop();	
     
-	// // Cone example
-	// gPush();
-	// 	gTranslate(conePosition[0],conePosition[1],conePosition[2]);
-	// 	gPush();
-	// 	{
-	// 		setColor(vec4(1.0,1.0,0.0,1.0));
-	// 		coneRotation[1] = coneRotation[1] + 90*dt;
-	// 		gRotate(coneRotation[1],0,1,0);
-	// 		drawCone();
-	// 	}
-	// 	gPop();
-	// gPop();
+	// Cone example
+	gPush();
+		gTranslate(conePosition[0],conePosition[1],conePosition[2]);
+		gPush();
+		{
+			setColor(vec4(1.0,1.0,0.0,1.0));
+			coneRotation[1] = coneRotation[1] + 90*dt;
+			gRotate(coneRotation[1],0,1,0);
+			drawCone();
+		}
+		gPop();
+	gPop();
 
     if( animFlag )
         window.requestAnimFrame(render);
