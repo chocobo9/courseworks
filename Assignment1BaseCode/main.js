@@ -10,20 +10,20 @@ var far = 100;
 
 var left = -6.0;
 var right = 6.0;
-var ytop =6.0;
+var ytop = 6.0;
 var bottom = -6.0;
 
 
-var lightPosition2 = vec4(100.0, 100.0, 100.0, 1.0 );
-var lightPosition = vec4(0.0, 0.0, 100.0, 1.0 );
+var lightPosition2 = vec4(100.0, 100.0, 100.0, 1.0);
+var lightPosition = vec4(0.0, 0.0, 100.0, 1.0);
 
-var lightAmbient = vec4(0.2, 0.2, 0.2, 1.0 );
-var lightDiffuse = vec4( 1.0, 1.0, 1.0, 1.0 );
-var lightSpecular = vec4( 1.0, 1.0, 1.0, 1.0 );
+var lightAmbient = vec4(0.2, 0.2, 0.2, 1.0);
+var lightDiffuse = vec4(1.0, 1.0, 1.0, 1.0);
+var lightSpecular = vec4(1.0, 1.0, 1.0, 1.0);
 
-var materialAmbient = vec4( 1.0, 0.0, 1.0, 1.0 );
-var materialDiffuse = vec4( 1.0, 0.8, 0.0, 1.0 );
-var materialSpecular = vec4( 0.4, 0.4, 0.4, 1.0 );
+var materialAmbient = vec4(1.0, 0.0, 1.0, 1.0);
+var materialDiffuse = vec4(1.0, 0.8, 0.0, 1.0);
+var materialSpecular = vec4(0.4, 0.4, 0.4, 1.0);
 var materialShininess = 30.0;
 
 var ambientColor, diffuseColor, specularColor;
@@ -49,132 +49,132 @@ var controller;
 // These are used to store the current state of objects.
 // In animation it is often useful to think of an object as having some DOF
 // Then the animation is simply evolving those DOF over time.
-var sphereRotation = [0,0,0];
-var spherePosition = [-4,0,0];
+var sphereRotation = [0, 0, 0];
+var spherePosition = [-4, 0, 0];
 
-var cubeRotation = [0,0,0];
-var cubePosition = [-1,0,0];
+var cubeRotation = [0, 0, 0];
+var cubePosition = [-1, 0, 0];
 
-var cylinderRotation = [0,0,0];
-var cylinderPosition = [1.1,0,0];
+var cylinderRotation = [0, 0, 0];
+var cylinderPosition = [1.1, 0, 0];
 
-var coneRotation = [0,0,0];
-var conePosition = [3,0,0];
+var coneRotation = [0, 0, 0];
+var conePosition = [3, 0, 0];
 
 // Setting the colour which is needed during illumination of a surface
-function setColor(c)
-{
-    ambientProduct = mult(lightAmbient, c);
-    diffuseProduct = mult(lightDiffuse, c);
-    specularProduct = mult(lightSpecular, materialSpecular);
-    
-    gl.uniform4fv( gl.getUniformLocation(program,
-                                         "ambientProduct"),flatten(ambientProduct) );
-    gl.uniform4fv( gl.getUniformLocation(program,
-                                         "diffuseProduct"),flatten(diffuseProduct) );
-    gl.uniform4fv( gl.getUniformLocation(program,
-                                         "specularProduct"),flatten(specularProduct) );
-    gl.uniform4fv( gl.getUniformLocation(program,
-                                         "lightPosition"),flatten(lightPosition) );
-    gl.uniform1f( gl.getUniformLocation(program, 
-                                        "shininess"),materialShininess );
+function setColor(c) {
+	ambientProduct = mult(lightAmbient, c);
+	diffuseProduct = mult(lightDiffuse, c);
+	specularProduct = mult(lightSpecular, materialSpecular);
+
+	gl.uniform4fv(gl.getUniformLocation(program,
+		"ambientProduct"), flatten(ambientProduct));
+	gl.uniform4fv(gl.getUniformLocation(program,
+		"diffuseProduct"), flatten(diffuseProduct));
+	gl.uniform4fv(gl.getUniformLocation(program,
+		"specularProduct"), flatten(specularProduct));
+	gl.uniform4fv(gl.getUniformLocation(program,
+		"lightPosition"), flatten(lightPosition));
+	gl.uniform1f(gl.getUniformLocation(program,
+		"shininess"), materialShininess);
 }
 
 window.onload = function init() {
 
-    canvas = document.getElementById( "gl-canvas" );
-    
-    gl = WebGLUtils.setupWebGL( canvas );
-    if ( !gl ) { alert( "WebGL isn't available" ); }
+	canvas = document.getElementById("gl-canvas");
 
-    gl.viewport( 0, 0, canvas.width, canvas.height );
-    gl.clearColor( 0.5, 0.5, 1.0, 1.0 );
-    
-    gl.enable(gl.DEPTH_TEST);
+	gl = WebGLUtils.setupWebGL(canvas);
+	if (!gl) { alert("WebGL isn't available"); }
 
-    //
-    //  Load shaders and initialize attribute buffers
-    //
-    program = initShaders( gl, "vertex-shader", "fragment-shader" );
-    gl.useProgram( program );
-    
+	gl.viewport(0, 0, canvas.width, canvas.height);
+	gl.clearColor(0.5, 0.5, 1.0, 1.0);
 
-    setColor(materialDiffuse);
+	gl.enable(gl.DEPTH_TEST);
+
+	//
+	//  Load shaders and initialize attribute buffers
+	//
+	program = initShaders(gl, "vertex-shader", "fragment-shader");
+	gl.useProgram(program);
+
+
+	setColor(materialDiffuse);
 
 	// Initialize some shapes, note that the curved ones are procedural which allows you to parameterize how nice they look
 	// Those number will correspond to how many sides are used to "estimate" a curved surface. More = smoother
-    Cube.init(program);
-    Cylinder.init(20,program);
-    Cone.init(20,program);
-    Sphere.init(36,program);
+	Cube.init(program);
+	Cylinder.init(20, program);
+	Cone.init(20, program);
+	Sphere.init(36, program);
 
-    // Matrix uniforms
-    modelViewMatrixLoc = gl.getUniformLocation( program, "modelViewMatrix" );
-    normalMatrixLoc = gl.getUniformLocation( program, "normalMatrix" );
-    projectionMatrixLoc = gl.getUniformLocation( program, "projectionMatrix" );
-    
-    // Lighting Uniforms
-    gl.uniform4fv( gl.getUniformLocation(program, 
-       "ambientProduct"),flatten(ambientProduct) );
-    gl.uniform4fv( gl.getUniformLocation(program, 
-       "diffuseProduct"),flatten(diffuseProduct) );
-    gl.uniform4fv( gl.getUniformLocation(program, 
-       "specularProduct"),flatten(specularProduct) );	
-    gl.uniform4fv( gl.getUniformLocation(program, 
-       "lightPosition"),flatten(lightPosition) );
-    gl.uniform1f( gl.getUniformLocation(program, 
-       "shininess"),materialShininess );
+	// Matrix uniforms
+	modelViewMatrixLoc = gl.getUniformLocation(program, "modelViewMatrix");
+	normalMatrixLoc = gl.getUniformLocation(program, "normalMatrix");
+	projectionMatrixLoc = gl.getUniformLocation(program, "projectionMatrix");
+
+	// Lighting Uniforms
+	gl.uniform4fv(gl.getUniformLocation(program,
+		"ambientProduct"), flatten(ambientProduct));
+	gl.uniform4fv(gl.getUniformLocation(program,
+		"diffuseProduct"), flatten(diffuseProduct));
+	gl.uniform4fv(gl.getUniformLocation(program,
+		"specularProduct"), flatten(specularProduct));
+	gl.uniform4fv(gl.getUniformLocation(program,
+		"lightPosition"), flatten(lightPosition));
+	gl.uniform1f(gl.getUniformLocation(program,
+		"shininess"), materialShininess);
 
 
-    document.getElementById("animToggleButton").onclick = function() {
-        if( animFlag ) {
-            animFlag = false;
-        }
-        else {
-            animFlag = true;
-            resetTimerFlag = true;
-            window.requestAnimFrame(render);
-        }
-        //console.log(animFlag);
-		
+	document.getElementById("animToggleButton").onclick = function () {
+		if (animFlag) {
+			animFlag = false;
+		}
+		else {
+			animFlag = true;
+			resetTimerFlag = true;
+			window.requestAnimFrame(render);
+		}
+		console.log(animFlag);
+
 		controller = new CameraController(canvas);
-		controller.onchange = function(xRot,yRot) {
+		controller.onchange = function (xRot, yRot) {
 			RX = xRot;
 			RY = yRot;
-			window.requestAnimFrame(render); };
-    };
+			window.requestAnimFrame(render);
+		};
+	};
 
-    render(0);
+	render(0);
 }
 
 // Sets the modelview and normal matrix in the shaders
 function setMV() {
-    modelViewMatrix = mult(viewMatrix,modelMatrix);
-    gl.uniformMatrix4fv(modelViewMatrixLoc, false, flatten(modelViewMatrix) );
-    normalMatrix = inverseTranspose(modelViewMatrix);
-    gl.uniformMatrix4fv(normalMatrixLoc, false, flatten(normalMatrix) );
+	modelViewMatrix = mult(viewMatrix, modelMatrix);
+	gl.uniformMatrix4fv(modelViewMatrixLoc, false, flatten(modelViewMatrix));
+	normalMatrix = inverseTranspose(modelViewMatrix);
+	gl.uniformMatrix4fv(normalMatrixLoc, false, flatten(normalMatrix));
 }
 
 // Sets the projection, modelview and normal matrix in the shaders
 function setAllMatrices() {
-    gl.uniformMatrix4fv(projectionMatrixLoc, false, flatten(projectionMatrix) );
-    setMV();   
+	gl.uniformMatrix4fv(projectionMatrixLoc, false, flatten(projectionMatrix));
+	setMV();
 }
 
 // Draws a 2x2x2 cube center at the origin
 // Sets the modelview matrix and the normal matrix of the global program
 // Sets the attributes and calls draw arrays
 function drawCube() {
-    setMV();
-    Cube.draw();
+	setMV();
+	Cube.draw();
 }
 
 // Draws a sphere centered at the origin of radius 1.0.
 // Sets the modelview matrix and the normal matrix of the global program
 // Sets the attributes and calls draw arrays
 function drawSphere() {
-    setMV();
-    Sphere.draw();
+	setMV();
+	Sphere.draw();
 }
 
 // Draws a cylinder along z of height 1 centered at the origin
@@ -182,8 +182,8 @@ function drawSphere() {
 // Sets the modelview matrix and the normal matrix of the global program
 // Sets the attributes and calls draw arrays
 function drawCylinder() {
-    setMV();
-    Cylinder.draw();
+	setMV();
+	Cylinder.draw();
 }
 
 // Draws a cone along z of height 1 centered at the origin
@@ -191,93 +191,126 @@ function drawCylinder() {
 // Sets the modelview matrix and the normal matrix of the global program
 // Sets the attributes and calls draw arrays
 function drawCone() {
-    setMV();
-    Cone.draw();
+	setMV();
+	Cone.draw();
 }
 
 // Post multiples the modelview matrix with a translation matrix
 // and replaces the modeling matrix with the result
-function gTranslate(x,y,z) {
-    modelMatrix = mult(modelMatrix,translate([x,y,z]));
+function gTranslate(x, y, z) {
+	modelMatrix = mult(modelMatrix, translate([x, y, z]));
 }
 
 // Post multiples the modelview matrix with a rotation matrix
 // and replaces the modeling matrix with the result
-function gRotate(theta,x,y,z) {
-    modelMatrix = mult(modelMatrix,rotate(theta,[x,y,z]));
+function gRotate(theta, x, y, z) {
+	modelMatrix = mult(modelMatrix, rotate(theta, [x, y, z]));
 }
 
 // Post multiples the modelview matrix with a scaling matrix
 // and replaces the modeling matrix with the result
-function gScale(sx,sy,sz) {
-    modelMatrix = mult(modelMatrix,scale(sx,sy,sz));
+function gScale(sx, sy, sz) {
+	modelMatrix = mult(modelMatrix, scale(sx, sy, sz));
 }
 
 // Pops MS and stores the result as the current modelMatrix
 function gPop() {
-    modelMatrix = MS.pop();
+	modelMatrix = MS.pop();
 }
 
 // pushes the current modelViewMatrix in the stack MS
 function gPush() {
-    MS.push(modelMatrix);
+	MS.push(modelMatrix);
 }
 
 
-function createGround(){
-	gPush();{
+function createGround() {
+	gPush(); {
 		gTranslate(0, -5, 0);
-    	gScale(6, 1, 2);
-    	setColor(vec4(0.1, 0.1, 0.1, 1.0));
-    	drawCube();
+		gScale(6, 1, 2);
+		setColor(vec4(0.1, 0.1, 0.1, 1.0));
+		drawCube();
 	}
 	gPop();
 }
 
-function createRock(){
+function createRock() {
 	setColor(vec4(0.3, 0.3, 0.3, 1.0));
-	gTranslate(0.3,-3.4,0);
-	gScale(0.7,0.7,0.7);
+	gTranslate(0.3, -3.4, 0);
+	gScale(0.7, 0.7, 0.7);
 	drawSphere();
-	gPush();{
-		gTranslate(-1.7,-0.4,0);
-		gScale(0.5,0.5,0.5);
+	gPush(); {
+		gTranslate(-1.7, -0.4, 0);
+		gScale(0.5, 0.5, 0.5);
 		drawSphere();
 	}
 	gPop();
 }
 
+// function drawSeaweed() {
+// 	for (let i = 0; i < 10; i++) {
+// 	  drawSphere();
+// 	  gTranslate(0, 2, 0);
+// 	}
+//   }
+// function createSeaweeds() {
+// 	setColor(vec4(0, 0.5, 0, 1.0));
+// 	gScale(0.2, 0.4, 0.2);
+
+// 	// Define an array of positions for seaweed
+// 	const seaweedPositions = [
+// 	  [0, 3.4, 0],
+// 	  [-4.5, 2, 0],
+// 	  [4.7, 1.8, 0]
+// 	];
+
+// 	// Loop through each position and create seaweed
+// 	for (const position of seaweedPositions) {
+// 	  gPush(); 
+// 	  gTranslate(position[0], position[1], position[2]);
+// 	  drawSeaweed();
+// 	  gPop(); 
+// 	}
+// }
 function drawSeaweed() {
 	for (let i = 0; i < 10; i++) {
-	  drawSphere();
-	  gTranslate(0, 2, 0);
+		drawSphere();
+		// Introduce a waving effect by applying a vertical translation
+		// based on a sine function with respect to time (TIME) and the current loop iteration (i).
+		const waveAmplitude = 0.2; // Adjust the wave amplitude as needed.
+		const waveFrequency = 0.5; // Adjust the wave frequency as needed.
+		gTranslate(0, 2 + waveAmplitude * Math.sin(waveFrequency * i + TIME), 0);
 	}
-  }
+}
+
 function createSeaweeds() {
 	setColor(vec4(0, 0.5, 0, 1.0));
 	gScale(0.2, 0.4, 0.2);
-  
+
 	// Define an array of positions for seaweed
 	const seaweedPositions = [
-	  [0, 3.4, 0],
-	  [-4.5, 2, 0],
-	  [4.7, 1.8, 0]
+		[0, 3.4, 0],
+		[-4.5, 2, 0],
+		[4.7, 1.8, 0]
 	];
-  
+
 	// Loop through each position and create seaweed
 	for (const position of seaweedPositions) {
-	  gPush(); 
-	  gTranslate(position[0], position[1], position[2]);
-	  drawSeaweed();
-	  gPop(); 
+		gPush();
+		gTranslate(position[0], position[1], position[2]);
+		drawSeaweed();
+		gPop();
 	}
 }
-  
-function createFish(){
+
+function createFish() {
 	gPush();
 	{
 		setColor(vec4(0.5, 0.5, 0.5, 1.0));
 		gTranslate(0, 2, 0);
+		gRotate(90, 0, 1, 0);
+		coneRotation[1] = coneRotation[1] + 90 * dt;
+		gRotate(coneRotation[1], 0, 1, 0);
 		drawCone();
 		createFishEyes();
 		createFishBody();
@@ -285,55 +318,73 @@ function createFish(){
 	}
 	gPop();
 }
-function drawFishEye(){
+function drawFishEye() {
 	gPush();
 	{
 		setColor(vec4(1, 1, 1, 1.0));
 		gScale(0.3, 0.3, 0.3);
 		drawSphere();
 		gTranslate(0, 0, 0.75);
-      	setColor(vec4(0, 0, 0, 1.0));
-      	gScale(0.7, 0.7, 0.7);
-      	drawSphere();
+		setColor(vec4(0, 0, 0, 1.0));
+		gScale(0.7, 0.7, 0.7);
+		drawSphere();
 	}
 	gPop();
 }
-function createFishEyes(){
-	gPush();
-	gTranslate(0.4, 0.5, 0.1);
-	drawFishEye();
-	gTranslate(-0.9, 0, 0);
-	drawFishEye();
+function createFishEyes() {
+	gPush(); {
+		gTranslate(0.4, 0.5, 0.1);
+		drawFishEye();
+		gTranslate(-0.9, 0, 0);
+		drawFishEye();
+	}
 	gPop();
 }
-function createFishBody(){
-
+function createFishBody() {
+	gPush(); {
+		setColor(vec4(0.5, 0, 0, 1.0));
+		gScale(1, 1, 3);
+		gTranslate(0, 0, -0.65);
+		gRotate(180, 0, 1, 0);
+		drawCone();
+	}
+	gPop();
 }
-function createFishTails(){
-
+function createFishTails() {
+	gPush(); {
+		setColor(vec4(0.5, 1, 0, 1));
+		gTranslate(0, 0.3, -3.5)
+		gScale(0.25, 0.25, 1);
+		gRotate(-120, 1, 0, 0);
+		drawCone();
+		gRotate(130, 1, 0, 0);
+		gScale(1, 1, 1);
+		gTranslate(0, -3, 0.68);
+		drawCone();
+	}
+	gPop();
 }
 function render(timestamp) {
-    
-    gl.clear( gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
-    
-    eye = vec3(0,0,10);
-    MS = []; // Initialize modeling matrix stack
-	
+
+	gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+
+	eye = vec3(0, 0, 10);
+	MS = []; // Initialize modeling matrix stack
+
 	// initialize the modeling matrix to identity
-    modelMatrix = mat4();
-    
-    // set the camera matrix
-    viewMatrix = lookAt(eye, at , up);
-   
-    // set the projection matrix
-    projectionMatrix = ortho(left, right, bottom, ytop, near, far);
-    
-    
-    // set all the matrices
-    setAllMatrices();
-    
-	if( animFlag )
-    {
+	modelMatrix = mat4();
+
+	// set the camera matrix
+	viewMatrix = lookAt(eye, at, up);
+
+	// set the projection matrix
+	projectionMatrix = ortho(left, right, bottom, ytop, near, far);
+
+
+	// set all the matrices
+	setAllMatrices();
+
+	if (animFlag) {
 		// dt is the change in time or delta time from the last frame to this one
 		// in animation typically we have some property or degree of freedom we want to evolve over time
 		// For example imagine x is the position of a thing.
@@ -345,29 +396,29 @@ function render(timestamp) {
 		dt = (timestamp - prevTime) / 1000.0;
 		prevTime = timestamp;
 	}
-	//createGround();
-	gPush();{
+	createGround();
+	gPush(); {
 		createRock();
 		createSeaweeds();
-		createFishEyes();
+		createFish();
 	}
 	gPop();
-	
-	
-	// Sphere example
-	gPush();
-		// Put the sphere where it should be!
-		gTranslate(spherePosition[0],spherePosition[1],spherePosition[2]);
-		gPush();
-		{
-			// Draw the sphere!
-			setColor(vec4(1.0,0.0,0.0,1.0));
-			drawSphere();
 
-		}
-		gPop();
-	gPop();
-    
+
+	// // Sphere example
+	// gPush();
+	// 	// Put the sphere where it should be!
+	// 	gTranslate(spherePosition[0],spherePosition[1],spherePosition[2]);
+	// 	gPush();
+	// 	{
+	// 		// Draw the sphere!
+	// 		setColor(vec4(1.0,0.0,0.0,1.0));
+	// 		drawSphere();
+
+	// 	}
+	// 	gPop();
+	// gPop();
+
 	// // Cube example
 	// gPush();
 	// 	gTranslate(cubePosition[0],cubePosition[1],cubePosition[2]);
@@ -384,35 +435,35 @@ function render(timestamp) {
 	// 	}
 	// 	gPop();
 	// gPop();
-    
+
 	// Cylinder example
 	gPush();
-		gTranslate(cylinderPosition[0],cylinderPosition[1],cylinderPosition[2]);
-		gPush();
-		{
-			setColor(vec4(0.0,0.0,1.0,1.0));
-			cylinderRotation[1] = cylinderRotation[1] + 60*dt;
-			gRotate(cylinderRotation[1],0,1,0);
-			drawCylinder();
-		}
-		gPop();
-	gPop();	
-    
-	// Cone example
+	gTranslate(cylinderPosition[0], cylinderPosition[1], cylinderPosition[2]);
 	gPush();
-		gTranslate(conePosition[0],conePosition[1],conePosition[2]);
-		gPush();
-		{
-			setColor(vec4(1.0,1.0,0.0,1.0));
-			coneRotation[1] = coneRotation[1] + 90*dt;
-			gRotate(coneRotation[1],0,1,0);
-			drawCone();
-		}
-		gPop();
+	{
+		setColor(vec4(0.0, 0.0, 1.0, 1.0));
+		cylinderRotation[1] = cylinderRotation[1] + 60 * dt;
+		gRotate(cylinderRotation[1], 0, 1, 0);
+		drawCylinder();
+	}
+	gPop();
 	gPop();
 
-    if( animFlag )
-        window.requestAnimFrame(render);
+	// Cone example
+	gPush();
+	gTranslate(conePosition[0], conePosition[1], conePosition[2]);
+	gPush();
+	{
+		setColor(vec4(1.0, 1.0, 0.0, 1.0));
+		coneRotation[1] = coneRotation[1] + 90 * dt;
+		gRotate(coneRotation[1], 0, 1, 0);
+		drawCone();
+	}
+	gPop();
+	gPop();
+
+	if (animFlag)
+		window.requestAnimFrame(render);
 }
 
 // A simple camera controller which uses an HTML element as the event
@@ -433,21 +484,21 @@ function CameraController(element) {
 	this.dragging = false;
 	this.curX = 0;
 	this.curY = 0;
-	
+
 	// Assign a mouse down handler to the HTML element.
-	element.onmousedown = function(ev) {
+	element.onmousedown = function (ev) {
 		controller.dragging = true;
 		controller.curX = ev.clientX;
 		controller.curY = ev.clientY;
 	};
-	
+
 	// Assign a mouse up handler to the HTML element.
-	element.onmouseup = function(ev) {
+	element.onmouseup = function (ev) {
 		controller.dragging = false;
 	};
-	
+
 	// Assign a mouse move handler to the HTML element.
-	element.onmousemove = function(ev) {
+	element.onmousemove = function (ev) {
 		if (controller.dragging) {
 			// Determine how far we have moved since the last mouse move
 			// event.
