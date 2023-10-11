@@ -247,39 +247,12 @@ function createRock() {
 	gPop();
 }
 
-// function drawSeaweed() {
-// 	for (let i = 0; i < 10; i++) {
-// 	  drawSphere();
-// 	  gTranslate(0, 2, 0);
-// 	}
-//   }
-// function createSeaweeds() {
-// 	setColor(vec4(0, 0.5, 0, 1.0));
-// 	gScale(0.2, 0.4, 0.2);
-
-// 	// Define an array of positions for seaweed
-// 	const seaweedPositions = [
-// 	  [0, 3.4, 0],
-// 	  [-4.5, 2, 0],
-// 	  [4.7, 1.8, 0]
-// 	];
-
-// 	// Loop through each position and create seaweed
-// 	for (const position of seaweedPositions) {
-// 	  gPush(); 
-// 	  gTranslate(position[0], position[1], position[2]);
-// 	  drawSeaweed();
-// 	  gPop(); 
-// 	}
-// }
 function drawSeaweed() {
 	for (let i = 0; i < 10; i++) {
 		drawSphere();
-		// Introduce a waving effect by applying a vertical translation
-		// based on a sine function with respect to time (TIME) and the current loop iteration (i).
-		const waveAmplitude = 0.2; // Adjust the wave amplitude as needed.
-		const waveFrequency = 0.5; // Adjust the wave frequency as needed.
-		gTranslate(0, 2 + waveAmplitude * Math.sin(waveFrequency * i + TIME), 0);
+		const rotation = 30 * Math.sin(i * 15 + TIME);
+		gTranslate(0, 1.8, 0);
+		gRotate(rotation, 0, 0, 1);
 	}
 }
 
@@ -308,6 +281,7 @@ function createFish() {
 	{
 		setColor(vec4(0.5, 0.5, 0.5, 1.0));
 		gTranslate(0, 2, 0);
+		gScale(4, 3, 5);
 		gRotate(90, 0, 1, 0);
 		coneRotation[1] = coneRotation[1] + 90 * dt;
 		gRotate(coneRotation[1], 0, 1, 0);
@@ -324,18 +298,18 @@ function drawFishEye() {
 		setColor(vec4(1, 1, 1, 1.0));
 		gScale(0.3, 0.3, 0.3);
 		drawSphere();
-		gTranslate(0, 0, 0.75);
+		gTranslate(0, 0, 1);
 		setColor(vec4(0, 0, 0, 1.0));
-		gScale(0.7, 0.7, 0.7);
+		gScale(0.4, 0.4, 0.4);
 		drawSphere();
 	}
 	gPop();
 }
 function createFishEyes() {
 	gPush(); {
-		gTranslate(0.4, 0.5, 0.1);
+		gTranslate(0.5, 0.5, 0);
 		drawFishEye();
-		gTranslate(-0.9, 0, 0);
+		gTranslate(-1, 0, 0);
 		drawFishEye();
 	}
 	gPop();
@@ -395,6 +369,9 @@ function render(timestamp) {
 		// We can do this with angles or positions, the whole x,y,z position or just one dimension. It is up to us!
 		dt = (timestamp - prevTime) / 1000.0;
 		prevTime = timestamp;
+
+		// Update TIME with respect to the elapsed time (dt)
+		TIME += dt;
 	}
 	createGround();
 	gPush(); {
@@ -402,51 +379,6 @@ function render(timestamp) {
 		createSeaweeds();
 		createFish();
 	}
-	gPop();
-
-
-	// // Sphere example
-	// gPush();
-	// 	// Put the sphere where it should be!
-	// 	gTranslate(spherePosition[0],spherePosition[1],spherePosition[2]);
-	// 	gPush();
-	// 	{
-	// 		// Draw the sphere!
-	// 		setColor(vec4(1.0,0.0,0.0,1.0));
-	// 		drawSphere();
-
-	// 	}
-	// 	gPop();
-	// gPop();
-
-	// // Cube example
-	// gPush();
-	// 	gTranslate(cubePosition[0],cubePosition[1],cubePosition[2]);
-	// 	gPush();
-	// 	{
-	// 		setColor(vec4(0.0,1.0,0.0,1.0));
-	// 		// Here is an example of integration to rotate the cube around the y axis at 30 degrees per second
-	// 		// new cube rotation around y = current cube rotation around y + 30deg/s*dt
-	// 		cubeRotation[1] = cubeRotation[1] + 30*dt;
-	// 		// This calls a simple helper function to apply the rotation (theta, x, y, z), 
-	// 		// where x,y,z define the axis of rotation. Here is is the y axis, (0,1,0).
-	// 		gRotate(cubeRotation[1],0,1,0);
-	// 		drawCube();
-	// 	}
-	// 	gPop();
-	// gPop();
-
-	// Cylinder example
-	gPush();
-	gTranslate(cylinderPosition[0], cylinderPosition[1], cylinderPosition[2]);
-	gPush();
-	{
-		setColor(vec4(0.0, 0.0, 1.0, 1.0));
-		cylinderRotation[1] = cylinderRotation[1] + 60 * dt;
-		gRotate(cylinderRotation[1], 0, 1, 0);
-		drawCylinder();
-	}
-	gPop();
 	gPop();
 
 	// Cone example
