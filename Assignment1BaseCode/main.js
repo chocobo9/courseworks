@@ -250,7 +250,7 @@ function createRock() {
 function drawSeaweed() {
 	for (let i = 0; i < 10; i++) {
 		drawSphere();
-		const rotation = 30 * Math.sin(i * 15 + TIME);
+		const rotation = 30 * Math.sin(i * 90 + TIME);
 		gTranslate(0, 1.8, 0);
 		gRotate(rotation, 0, 0, 1);
 	}
@@ -280,11 +280,15 @@ function createFish() {
 	gPush();
 	{
 		setColor(vec4(0.5, 0.5, 0.5, 1.0));
-		gTranslate(0, 2, 0);
-		gScale(4, 3, 5);
+		//setup the fish size.
+		gScale(3, 2, 2.5);
+		//set the initial spot of the fish.
+		gTranslate(0, 3, 0);
+		//setup the traval of the fish around the seaweed.
+		gRotate(((-TIME * 180) / Math.PI), 0, 1, 0);
+		gTranslate(0, 2 * Math.cos(TIME * 0.5), -3);
+		// Draw fish head cone, eyes, body and tail
 		gRotate(90, 0, 1, 0);
-		coneRotation[1] = coneRotation[1] + 90 * dt;
-		gRotate(coneRotation[1], 0, 1, 0);
 		drawCone();
 		createFishEyes();
 		createFishBody();
@@ -325,16 +329,48 @@ function createFishBody() {
 	gPop();
 }
 function createFishTails() {
-	gPush(); {
-		setColor(vec4(0.5, 1, 0, 1));
-		gTranslate(0, 0.3, -3.5)
+	gPush();
+	{
+		// Upper tail
+		setColor(vec4(0.4, 0, 0, 1.0));
+		gTranslate(0, 0.6, -3.5);
+
+		gPush(); {
+			gRotate(40 * Math.sin(TIME * 2.5 * Math.PI), 0, 1, 0);
+			gRotate(-120, 1, 0, 0);
+			gScale(0.25, 0.25, 1.5);
+			drawCone();
+		} gPop();
+
+		// Lower Tail
+		gRotate(40 * Math.sin(TIME * 2.5 * Math.PI), 0, 1, 0);
+		gRotate(140, 1, 0, 0);
 		gScale(0.25, 0.25, 1);
-		gRotate(-120, 1, 0, 0);
+		gTranslate(0, 3, 0.5);
 		drawCone();
-		gRotate(130, 1, 0, 0);
-		gScale(1, 1, 1);
-		gTranslate(0, -3, 0.68);
-		drawCone();
+	}
+	gPop();
+}
+
+function drawLegs() {
+
+}
+function createPerson() {
+	gPush(); {
+		setColor(vec4(0.5, 0, 0.8, 1));
+		//draw body.
+		gTranslate(25, 16, 0);
+		gRotate(-30, 0, 1, 0);
+		gScale(4, 3.2, 2.7);
+		drawCube();
+		gTranslate(-1.5, 1.5, -3.5);
+		gScale(0.8, 0.5, 1);
+		drawSphere();//head
+		//draw legs.
+		//for(i<2){
+		//draw legs: left = -1, right  = 1	
+		//}
+		// gTranslate(-0.6, 0, 0);
 	}
 	gPop();
 }
@@ -378,20 +414,8 @@ function render(timestamp) {
 		createRock();
 		createSeaweeds();
 		createFish();
+		createPerson();
 	}
-	gPop();
-
-	// Cone example
-	gPush();
-	gTranslate(conePosition[0], conePosition[1], conePosition[2]);
-	gPush();
-	{
-		setColor(vec4(1.0, 1.0, 0.0, 1.0));
-		coneRotation[1] = coneRotation[1] + 90 * dt;
-		gRotate(coneRotation[1], 0, 1, 0);
-		drawCone();
-	}
-	gPop();
 	gPop();
 
 	if (animFlag)
