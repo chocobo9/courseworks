@@ -353,30 +353,55 @@ function createFishTails() {
 }
 
 function drawLegs(legs) {
+	rotation = legs * Math.sin(TIME);
+	gPush();{
+		//draw upper leg.
+		gTranslate(-0.7, -1.3, -0.5);
+			gRotate( 45 - 15*rotation, 1, 0, 0);
+			gPush();{
+			gScale(0.3, 0.9, 0.35);
+			drawCube();
+			}gPop();
+			//draw lower leg and foot. Foot does not rotate.
+			gPush();
+			{
+				gTranslate(0, -1.7, -0.4);
+				gRotate(30 - rotation, 1, 0, 0);
+				gPush();
+				gScale(0.2, 1, 0.3);
+				drawCube();
+				gPop();
+				gTranslate(0, -0.7, 0.2 );
+				gScale(0.3, 0.3, 0.5);
+				drawCube();
+			}
+			gPop();
 
+	}gPop();
 }
 function createPerson() {
 	gPush(); {
 		setColor(vec4(0.5, 0, 0.8, 1));
+		//set diver's movement.
+		var y =  3* Math.sin(TIME/3);
+		var x = Math.sin(TIME/2);
+		gTranslate(3 + x, y, 0);
 		gPush(); {
 			//draw body.
 			gTranslate(25, 16, 0);
 			gRotate(-30, 0, 1, 0);
 			gScale(4, 3.2, 2.7);
 			drawCube();
-			//draw legs.
-			for (let i = -1; i <= 1; i *= -1) {
-				drawLegs(i);
-			}
+			//draw left and right legs. Was trying to implement by a loop.. :(
+			let i = -1;
+			drawLegs(i);
+			i = 1;
+			gTranslate(1.2, 0, 0);
+			drawLegs(i);
 			
-
-			//for(i<2){
-			//draw legs: left = -1, right  = 1	
-			//}
-			// gTranslate(-0.6, 0, 0);
 		} gPop();
-		gTranslate(-1.5, 1.5, -3.5);
-		gScale(0.8, 5, 1);
+		gTranslate(25, 20.5, -3.5);
+		gScale(3, 1.5, 2);
 		drawSphere();//head
 	}
 	gPop();
