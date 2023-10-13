@@ -352,25 +352,32 @@ function createFishTails() {
 	gPop();
 }
 
-function drawLegs() {
+function drawLegs(legs) {
 
 }
 function createPerson() {
 	gPush(); {
 		setColor(vec4(0.5, 0, 0.8, 1));
-		//draw body.
-		gTranslate(25, 16, 0);
-		gRotate(-30, 0, 1, 0);
-		gScale(4, 3.2, 2.7);
-		drawCube();
+		gPush(); {
+			//draw body.
+			gTranslate(25, 16, 0);
+			gRotate(-30, 0, 1, 0);
+			gScale(4, 3.2, 2.7);
+			drawCube();
+			//draw legs.
+			for (let i = -1; i <= 1; i *= -1) {
+				drawLegs(i);
+			}
+			
+
+			//for(i<2){
+			//draw legs: left = -1, right  = 1	
+			//}
+			// gTranslate(-0.6, 0, 0);
+		} gPop();
 		gTranslate(-1.5, 1.5, -3.5);
-		gScale(0.8, 0.5, 1);
+		gScale(0.8, 5, 1);
 		drawSphere();//head
-		//draw legs.
-		//for(i<2){
-		//draw legs: left = -1, right  = 1	
-		//}
-		// gTranslate(-0.6, 0, 0);
 	}
 	gPop();
 }
