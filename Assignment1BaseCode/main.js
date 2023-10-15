@@ -246,143 +246,144 @@ function createRock() {
 	gPop();
 }
 
+//draw seaweed strand with 10 ellipses.
 function drawSeaweed() {
-	let ROTATION_FACTOR = 30, 
-		SECTIONS = 10, 
+	let ROTATION_FACTOR = 30,
+		SECTIONS = 10,
 		SPACING = 1.8,
 		TIME_OFFSET = 90;
-    for (let i = 0; i < SECTIONS; i++) {
-        drawSphere();
-        const rotation = ROTATION_FACTOR * Math.sin(i * TIME_OFFSET + TIME);
-        gTranslate(0, SPACING, 0);
-        gRotate(rotation, 0, 0, 1);
-    }
+	for (let i = 0; i < SECTIONS; i++) {
+		drawSphere();
+		const rotation = ROTATION_FACTOR * Math.sin(i * TIME_OFFSET + TIME);
+		gTranslate(0, SPACING, 0);
+		gRotate(rotation, 0, 0, 1);
+	}
 }
 
 function createSeaweeds() {
-    setColor(vec4(0, 0.5, 0, 1.0));
-    gScale(0.2, 0.4, 0.2);
+	setColor(vec4(0, 0.5, 0, 1.0));
+	gScale(0.2, 0.4, 0.2);
 
-    // Use an array of objects for clarity
-    const seaweedPositions = [
-        { x: 0, y: 3.4, z: 0 },
-        { x: -4.5, y: 2, z: 0 },
-        { x: 4.7, y: 1.8, z: 0 }
-    ];
+	// Use an array of objects for clarity
+	const seaweedPositions = [
+		{ x: 0, y: 3.4, z: 0 },
+		{ x: -4.5, y: 2, z: 0 },
+		{ x: 4.7, y: 1.8, z: 0 }
+	];
 
-    for (const position of seaweedPositions) {
-        gPush();
-        gTranslate(position.x, position.y, position.z);
-        drawSeaweed();
-        gPop();
-    }
+	for (const position of seaweedPositions) {
+		gPush();
+		gTranslate(position.x, position.y, position.z);
+		drawSeaweed();
+		gPop();
+	}
 }
 
 function createFish() {
-    // Constants for fish settings
-    const FISH_SIZE = { x: 3, y: 2, z: 2.5 };
-    const INITIAL_POSITION_Y = 3;
-    const TRAVERSAL_RADIUS = 3;
+	// Constants for fish settings
+	const FISH_SIZE = { x: 3, y: 2, z: 2.5 };
+	const INITIAL_POSITION_Y = 3;
+	const TRAVERSAL_RADIUS = 3;
 
-    gPush();
-    {
-        setColor(vec4(0.5, 0.5, 0.5, 1.0));
-        gScale(FISH_SIZE.x, FISH_SIZE.y, FISH_SIZE.z);
-        gTranslate(0, INITIAL_POSITION_Y, 0);
+	gPush();
+	{
+		setColor(vec4(0.5, 0.5, 0.5, 1.0));
+		gScale(FISH_SIZE.x, FISH_SIZE.y, FISH_SIZE.z);
+		gTranslate(0, INITIAL_POSITION_Y, 0);
 
-        // Make fish travel around seaweed in a circular path
-        const rotationAmount = (-TIME * 180) / Math.PI;
-        const verticalOscillation = 2 * Math.cos(TIME * 0.5);
-        gRotate(rotationAmount, 0, 1, 0);
-        gTranslate(0, verticalOscillation, -TRAVERSAL_RADIUS);
+		// Make fish travel around seaweed in a circular path
+		const rotationAmount = (-TIME * 180) / Math.PI;
+		const verticalOscillation = 2 * Math.cos(TIME * 0.5);
+		gRotate(rotationAmount, 0, 1, 0);
+		gTranslate(0, verticalOscillation, -TRAVERSAL_RADIUS);
 
-        gRotate(90, 0, 1, 0);
-        drawCone(); // Fish head
+		gRotate(90, 0, 1, 0);
+		drawCone(); // Fish head
 
-        createFishEyes();
-        createFishBody();
-        createFishTails();
-    }
-    gPop();
+		createFishEyes();
+		createFishBody();
+		createFishTails();
+	}
+	gPop();
 }
 
 function drawFishEye() {
-    // Constants for eye settings
-    const EYE_SIZE = 0.3;
-    const PUPIL_SCALE = 0.4;
+	// Constants for eye settings
+	const EYE_SIZE = 0.3;
+	const PUPIL_SCALE = 0.4;
 
-    gPush();
-    {
-        setColor(vec4(1, 1, 1, 1.0));
-        gScale(EYE_SIZE, EYE_SIZE, EYE_SIZE);
-        drawSphere(); // White part of the eye
+	gPush();
+	{
+		setColor(vec4(1, 1, 1, 1.0));
+		gScale(EYE_SIZE, EYE_SIZE, EYE_SIZE);
+		drawSphere(); // White part of the eye
 
-        // Move forward and draw the pupil
-        gTranslate(0, 0, 1);
-        setColor(vec4(0, 0, 0, 1.0));
-        gScale(PUPIL_SCALE, PUPIL_SCALE, PUPIL_SCALE);
-        drawSphere();
-    }
-    gPop();
+		// Move forward and draw the pupil
+		gTranslate(0, 0, 1);
+		setColor(vec4(0, 0, 0, 1.0));
+		gScale(PUPIL_SCALE, PUPIL_SCALE, PUPIL_SCALE);
+		drawSphere();
+	}
+	gPop();
 }
 
 function createFishEyes() {
-    const EYE_DISTANCE_FROM_CENTER = 0.5;
-    
-    gPush(); {
-        // Position for right eye
-        gTranslate(EYE_DISTANCE_FROM_CENTER, 0.5, 0);
-        drawFishEye();
+	const EYE_DISTANCE_FROM_CENTER = 0.5;
 
-        // Position for left eye (double the translation to cover both eyes)
-        gTranslate(-2 * EYE_DISTANCE_FROM_CENTER, 0, 0);
-        drawFishEye();
-    }
-    gPop();
+	gPush(); {
+		// Position for right eye
+		gTranslate(EYE_DISTANCE_FROM_CENTER, 0.5, 0);
+		drawFishEye();
+
+		// Position for left eye (double the translation to cover both eyes)
+		gTranslate(-2 * EYE_DISTANCE_FROM_CENTER, 0, 0);
+		drawFishEye();
+	}
+	gPop();
 }
 
 function createFishBody() {
-    const BODY_COLOR = vec4(0.5, 0, 0, 1.0);
-    const BODY_SCALE = { x: 1, y: 1, z: 3 };
-    const BODY_POSITION = { x: 0, y: 0, z: -0.65 };
-    
-    gPush(); {
-        setColor(BODY_COLOR);
-        gScale(BODY_SCALE.x, BODY_SCALE.y, BODY_SCALE.z);
-        gTranslate(BODY_POSITION.x, BODY_POSITION.y, BODY_POSITION.z);
-        gRotate(180, 0, 1, 0);
-        drawCone(); // Fish body
-    }
-    gPop();
+	const BODY_COLOR = vec4(0.5, 0, 0, 1.0);
+	const BODY_SCALE = { x: 1, y: 1, z: 3 };
+	const BODY_POSITION = { x: 0, y: 0, z: -0.65 };
+
+	gPush(); {
+		setColor(BODY_COLOR);
+		gScale(BODY_SCALE.x, BODY_SCALE.y, BODY_SCALE.z);
+		gTranslate(BODY_POSITION.x, BODY_POSITION.y, BODY_POSITION.z);
+		gRotate(180, 0, 1, 0);
+		drawCone(); // Fish body
+	}
+	gPop();
 }
 
 function createFishTails() {
-    const TAIL_COLOR = vec4(0.4, 0, 0, 1.0);
-    const TAIL_WIGGLE_AMPLITUDE = 40 * Math.sin(TIME * 2.5 * Math.PI);
-    const REDUCED_WIGGLE_AMPLITUDE = 20 * Math.sin(TIME * 2.5 * Math.PI); // Half of the upper tail's amplitude
-    const TAIL_SCALE = { x: 0.25, y: 0.25, z: 1.5 };
+	const TAIL_COLOR = vec4(0.4, 0, 0, 1.0);
+	const TAIL_WIGGLE_AMPLITUDE = 40 * Math.sin(TIME * 2.5 * Math.PI);
+	const REDUCED_WIGGLE_AMPLITUDE = 20 * Math.sin(TIME * 2.5 * Math.PI); // Half of the upper tail's amplitude
+	const TAIL_SCALE = { x: 0.25, y: 0.25, z: 1.5 };
 
-    gPush();
-    {
-        setColor(TAIL_COLOR);
+	gPush();
+	{
+		setColor(TAIL_COLOR);
 
-        // Upper tail
-        gTranslate(0, 0.6, -3.5);
-        gRotate(TAIL_WIGGLE_AMPLITUDE, 0, 1, 0);
-        gPush(); {
-            gRotate(-120, 1, 0, 0);
-            gScale(TAIL_SCALE.x, TAIL_SCALE.y, TAIL_SCALE.z);
-            drawCone();
-        } gPop();
+		// Upper tail
+		gTranslate(0, 0.6, -3.5);
+		gRotate(TAIL_WIGGLE_AMPLITUDE, 0, 1, 0);
+		gPush(); {
+			gRotate(-120, 1, 0, 0);
+			gScale(TAIL_SCALE.x, TAIL_SCALE.y, TAIL_SCALE.z);
+			drawCone();
+		} gPop();
 
-        // Lower Tail
-        gRotate(REDUCED_WIGGLE_AMPLITUDE, 0, 1, 0);
-        gRotate(140, 1, 0, 0);
-        gScale(TAIL_SCALE.x, TAIL_SCALE.y, TAIL_SCALE.z);
-        gTranslate(0, 3, 0.5);
-        drawCone();
-    }
-    gPop();
+		// Lower Tail
+		gRotate(REDUCED_WIGGLE_AMPLITUDE, 0, 1, 0);
+		gRotate(140, 1, 0, 0);
+		gScale(TAIL_SCALE.x, TAIL_SCALE.y, TAIL_SCALE.z);
+		gTranslate(0, 3, 0.5);
+		drawCone();
+	}
+	gPop();
 }
 
 function drawLeg(legDirection) {
@@ -438,6 +439,7 @@ function createPerson() {
 			gScale(4, 3.2, 2.7);
 			drawCube();
 
+			//draw two legs by calling drawLeg function.
 			for (let legDirection of [-1, 1]) {
 				if (legDirection === 1) {
 					gTranslate(LEG_OFFSET_X, 0, 0);
@@ -453,6 +455,7 @@ function createPerson() {
 	}
 	gPop();
 }
+
 
 function render(timestamp) {
 
@@ -495,10 +498,9 @@ function render(timestamp) {
 		createSeaweeds();
 		createFish();
 		createPerson();
-		
 	}
 	gPop();
-	
+
 	if (animFlag)
 		window.requestAnimFrame(render);
 }
